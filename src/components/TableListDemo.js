@@ -107,17 +107,15 @@ function TableListDemo() {
                 </tr>
               </thead>
                 <tbody>
-                  <tr>
-                    { tableList.map((number,index) => 
-                      <li key={index} className="list-group-item">
-                        { (editIndex !== index) ?<td>{number}</td> : <td><input type="text" value={editNumber || number} onChange={setEditNumberHandler} className="form-control" required></input></td>}
-                        { (editIndex === index) && showErrorMessage("editNumber") }
-                        {(editIndex !== index) ? <td><button onClick={() => setEditIndexHandler(index)} className="btn btn-primary btn-sm">Edit</button> </td> : <td><button onClick={() => updateInList(index)}className="btn btn-primary btn-sm">Upadte</button></td> }
+                  { tableList.map((number,index) => 
+                    <tr key={index} className="list-group-item">
+                      { (editIndex !== index) ?<td>{number}</td> : <td><input type="text" value={editNumber || number} onChange={setEditNumberHandler} className="form-control" required></input></td>}
+                      { (editIndex === index) && showErrorMessage("editNumber") }
+                      {(editIndex !== index) ? <td><button onClick={() => setEditIndexHandler(index)} className="btn btn-primary btn-sm">Edit</button> </td> : <td><button onClick={() => updateInList(index)}className="btn btn-primary btn-sm">Upadte</button></td> }
 
-                        {<td><button onClick={() => deleteFromList(index)} className="btn btn-primary btn-sm">Delete</button></td>}
-                      </li>
-                    )}
-                  </tr>
+                      {<td><button onClick={() => deleteFromList(index)} className="btn btn-primary btn-sm">Delete</button></td>}
+                    </tr>
+                  )}
                 </tbody>
             </table>
           </div>
@@ -132,14 +130,12 @@ function TableListDemo() {
                 </tr>
               </thead>
                 <tbody>
-                  <tr>
-                    { dividedNumberList.map((number,index) => 
-                      <li key={index} className="list-group-item">
-                        <td>{ number}</td>
-                        <td>{<button onClick={() => deleteFromDivisionListList(index)} className="btn btn-primary btn-sm">Delete</button>}</td>
-                      </li>
-                    )}
-                  </tr>
+                  { dividedNumberList.map((number,index) => 
+                    <tr key={index} className="list-group-item">
+                      <td>{ number}</td>
+                      <td>{<button onClick={() => deleteFromDivisionListList(index)} className="btn btn-primary btn-sm">Delete</button>}</td>
+                    </tr>
+                  )}
                 </tbody>
             </table>
           </div>
