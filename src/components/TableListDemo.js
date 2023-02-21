@@ -1,5 +1,7 @@
-import React,{ useState, useEffect } from 'react'
+import React,{ useState, useRef } from 'react'
+import DivisionList from './DivisionList'
 import InputField from './InputField'
+import TableList from './TableList'
 
 function TableListDemo() {
   const [tableList, setTableList ] = useState([])
@@ -9,9 +11,16 @@ function TableListDemo() {
   const [dividedNumberList, setDividedNumberList ] = useState([])
   const [divideByNumber, setDivideByNumber ] = useState('')
   const [errorMessage, setErrorMessage] = useState([])
+  const inputRef = useRef(null);
 
   const addInList = () =>{
-    validate(number, 'tableNumber') && setTableList([...tableList, parseInt(number) + (tableList[tableList.length - 1] || 0)])
+    const newNumber = parseInt(number) + (tableList[tableList.length - 1] || 0)
+    validate(number, 'tableNumber') && setTableList([...tableList, newNumber])
+
+    if ((divideByNumber) && (newNumber) % divideByNumber == 0){
+      let divideListNum = (newNumber) % divideByNumber == 0 && newNumber
+      setDividedNumberList(prevNumberList => [...prevNumberList, divideListNum])
+    }
   }
 
   function updateInList(index) {
@@ -20,6 +29,9 @@ function TableListDemo() {
     if (editNumber && validate(editNumber, "editNumber") || true){
       newArray[editIndex] = isNaN(parseInt(editNumber))? newArray[index] : parseInt(editNumber)
       setTableList(newArray)
+      if ((newArray[editIndex]) % divideByNumber == 0 ) {
+        setDividedNumberList(prevNumberList => [...prevNumberList, newArray[editIndex]])
+      }
       setEditIndex(false)
       setEditNumber('')
     }
@@ -30,16 +42,6 @@ function TableListDemo() {
     newArray.splice(index, 1)
     setTableList(newArray)
   }
-  
-  useEffect(() =>{
-    const divideBy = parseInt(divideByNumber)
-    setDividedNumberList(tableList.filter(n => n % divideBy == 0).map(num => {
-      if (num % divideBy == 0)
-        {
-          return num
-        }
-    }))
-  }, [divideByNumber, tableList])
   
   const deleteFromDivisionListList = (index) => {
     const divisionArray = [...dividedNumberList]
@@ -59,10 +61,9 @@ function TableListDemo() {
     setDivideByNumber(number)
   }
 
-  const setEditNumberHandler = (e) => {
-    let editedNumber = e.target.value
-    validate(editedNumber, "editNumber")
-    setEditNumber(editedNumber)
+  const setEditNumberHandler = (num) => {
+    validate(num, "editNumber")
+    setEditNumber(num)
   }
 
   function validate(number, key){
@@ -72,71 +73,41 @@ function TableListDemo() {
       return false
     }
     else{
-      const getErrorMessage = errorMessage.find((obj => obj.key === key))
-      console.log(errorMessage.filter(obj => obj.key !== key))
       setErrorMessage(prevErrorMessage => prevErrorMessage.filter(obj => obj.key !== key))
       return true
     }
   }
 
-  function showErrorMessage(key){
-    const getErrorMessage = errorMessage.find((obj => obj.key === key))
-    if (getErrorMessage){
-      return <p style={{color: "red"}}>{getErrorMessage.error}</p>
-    }
-  }
-  function setEditIndexHandler(index){
-    setEditNumber('')
+  function setEditIndexHandler(index, num, inputRef){
     setEditIndex(index)
+    setEditNumberHandler(num)
+    inputRef.current.focus()
   }
   return (
     <React.Fragment>
       <div className="container text-center mt-5">
         <div className="row">
           <div className="col">
-            <InputField number={number} setNumberHandler={setNumberHandler} showErrorMessage={showErrorMessage} addInList={addInList} divideByNumber={divideByNumber} setDivideByNumberHandler={setDivideByNumberHandler} />
+            <InputField number={number} setNumberHandler={setNumberHandler} addInList={addInList} divideByNumber={divideByNumber} setDivideByNumberHandler={setDivideByNumberHandler} editNumber={editNumber} updateInList={updateInList} editIndex={editIndex} setEditNumberHandler={setEditNumberHandler} errorMessage={errorMessage} inputRef={inputRef}/>
           </div>
           <div className="col">
             <p>Table List</p>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col"></th>
-                  <th scope="col"></th>
-                </tr>
-              </thead>
-                <tbody>
-                  { tableList.map((number,index) => 
-                    <tr key={index} className="list-group-item">
-                      { (editIndex !== index) ?<td>{number}</td> : <td><input type="text" value={editNumber || number} onChange={setEditNumberHandler} className="form-control" required></input></td>}
-                      { (editIndex === index) && showErrorMessage("editNumber") }
-                      {(editIndex !== index) ? <td><button onClick={() => setEditIndexHandler(index)} className="btn btn-primary btn-sm">Edit</button> </td> : <td><button onClick={() => updateInList(index)}className="btn btn-primary btn-sm">Upadte</button></td> }
-
-                      {<td><button onClick={() => deleteFromList(index)} className="btn btn-primary btn-sm">Delete</button></td>}
-                    </tr>
-                  )}
-                </tbody>
+            <table className="table d-flex align-items-center justify-content-center">
+              <tbody>
+                { tableList.map((number,index) => 
+                  <TableList key={index} index={index} number={number} setEditIndexHandler={setEditIndexHandler} deleteFromList={deleteFromList} inputRef={inputRef}/>
+                )}
+              </tbody>
             </table>
           </div>
           <div className="col">
-
             <p>Division List</p>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col"></th>
-                </tr>
-              </thead>
-                <tbody>
-                  { dividedNumberList.map((number,index) => 
-                    <tr key={index} className="list-group-item">
-                      <td>{ number}</td>
-                      <td>{<button onClick={() => deleteFromDivisionListList(index)} className="btn btn-primary btn-sm">Delete</button>}</td>
-                    </tr>
-                  )}
-                </tbody>
+            <table className="table d-flex align-items-center justify-content-center">
+              <tbody>
+                { dividedNumberList.map((number,index) => 
+                  <DivisionList key={index} index={index} number={number} deleteFromDivisionListList={deleteFromDivisionListList}/>
+                )}
+              </tbody>
             </table>
           </div>
         </div>
